@@ -1,0 +1,8 @@
+flask
+flask-cors
+face-recognition
+opencv-python-headless
+numpy
+supabase
+python-dotenv
+fpdf

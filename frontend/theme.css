@@ -1,0 +1,554 @@
+/* ============================================
+   DARK/LIGHT MODE THEME SYSTEM
+   ============================================
+   Professional color palette with CSS variables
+   Smooth transitions between themes
+   ============================================ */
+
+/* ============================================
+   LIGHT MODE (DEFAULT)
+   ============================================ */
+:root,
+[data-theme="light"] {
+  /* Background Colors */
+  --bg-primary: #F5F1FF;
+  --bg-secondary: #FFFFFF;
+  --bg-tertiary: #ECE4FF;
+  --bg-card: #FFFFFF;
+  --bg-hover: #F2ECFF;
+  
+  /* Text Colors */
+  --text-primary: #2F2348;
+  --text-secondary: #4B3A6A;
+  --text-tertiary: #6A5B92;
+  --text-muted: #9A8ABD;
+  
+  /* Primary Colors (Deep Blue/Indigo) */
+  --primary-50: #F3EEFF;
+  --primary-100: #E7DBFF;
+  --primary-200: #D4BBFF;
+  --primary-300: #BD96FF;
+  --primary-400: #A773FF;
+  --primary-500: #8D63FF;
+  --primary-600: #7B4DFF;
+  --primary-700: #6B3FF0;
+  --primary-800: #5A33CC;
+  --primary-900: #452796;
+  
+  /* Accent Colors (Soft Teal/Cyan) */
+  --accent-50: #F9F5FF;
+  --accent-100: #F0E7FF;
+  --accent-200: #E6D7FF;
+  --accent-300: #D8C0FF;
+  --accent-400: #C3A1FF;
+  --accent-500: #B086FF;
+  --accent-600: #996BFF;
+  --accent-700: #8352EA;
+  --accent-800: #6F45C4;
+  --accent-900: #5A379D;
+  
+  /* Status Colors */
+  --success: #10B981;
+  --success-bg: #D1FAE5;
+  --error: #EF4444;
+  --error-bg: #FEE2E2;
+  --warning: #F59E0B;
+  --warning-bg: #FEF3C7;
+  --info: #3B82F6;
+  --info-bg: #DBEAFE;
+  
+  /* Border & Shadow */
+  --border-color: #E2E8F0;
+  --border-hover: #CBD5E1;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  
+  /* Gradients */
+  --gradient-primary: linear-gradient(135deg, #7B4DFF 0%, #A86EFF 100%);
+  --gradient-accent: linear-gradient(135deg, #C9B2FF 0%, #8D63FF 100%);
+  --gradient-success: linear-gradient(135deg, #10B981 0%, #059669 100%);
+  --gradient-bg: linear-gradient(135deg, #F5F7FA 0%, #E8EDF2 100%);
+  
+  /* Transitions */
+  --transition-fast: 150ms ease-in-out;
+  --transition-normal: 300ms ease-in-out;
+  --transition-slow: 500ms ease-in-out;
+  
+  /* Border Radius */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --radius-full: 9999px;
+}
+
+/* ============================================
+   DARK MODE
+   ============================================ */
+[data-theme="dark"] {
+  /* Background Colors */
+  --bg-primary: #0F172A;
+  --bg-secondary: #1E293B;
+  --bg-tertiary: #334155;
+  --bg-card: #1E293B;
+  --bg-hover: #334155;
+  
+  /* Text Colors */
+  --text-primary: #F1F5F9;
+  --text-secondary: #CBD5E1;
+  --text-tertiary: #94A3B8;
+  --text-muted: #64748B;
+  
+  /* Primary Colors (Soft Cyan/Blue) */
+  --primary-50: #164E63;
+  --primary-100: #155E75;
+  --primary-200: #0E7490;
+  --primary-300: #0891B2;
+  --primary-400: #06B6D4;
+  --primary-500: #22D3EE;
+  --primary-600: #67E8F9;
+  --primary-700: #A5F3FC;
+  --primary-800: #CFFAFE;
+  --primary-900: #ECFEFF;
+  
+  /* Accent Colors (Teal) */
+  --accent-50: #134E4A;
+  --accent-100: #115E59;
+  --accent-200: #0F766E;
+  --accent-300: #0D9488;
+  --accent-400: #14B8A6;
+  --accent-500: #2DD4BF;
+  --accent-600: #5EEAD4;
+  --accent-700: #99F6E4;
+  --accent-800: #CCFBF1;
+  --accent-900: #F0FDFA;
+  
+  /* Status Colors */
+  --success: #34D399;
+  --success-bg: #064E3B;
+  --error: #F87171;
+  --error-bg: #7F1D1D;
+  --warning: #FBBF24;
+  --warning-bg: #78350F;
+  --info: #60A5FA;
+  --info-bg: #1E3A8A;
+  
+  /* Border & Shadow */
+  --border-color: #334155;
+  --border-hover: #475569;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.6);
+  
+  /* Gradients */
+  --gradient-primary: linear-gradient(135deg, #22D3EE 0%, #06B6D4 100%);
+  --gradient-accent: linear-gradient(135deg, #14B8A6 0%, #0D9488 100%);
+  --gradient-success: linear-gradient(135deg, #34D399 0%, #10B981 100%);
+  --gradient-bg: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+}
+
+/* ============================================
+   GLOBAL STYLES WITH THEME SUPPORT
+   ============================================ */
+
+body {
+  background: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+  transition: background-color var(--transition-normal), 
+              color var(--transition-normal);
+}
+
+/* Override inline styles for theme support */
+.container {
+  background: transparent !important;
+}
+
+.header h1 {
+  color: var(--text-primary) !important;
+}
+
+.header p {
+  color: var(--text-secondary) !important;
+}
+
+/* Cards */
+.card {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border-color) !important;
+  box-shadow: var(--shadow-md) !important;
+  transition: all var(--transition-normal);
+}
+
+.card:hover {
+  border-color: var(--border-hover);
+  box-shadow: var(--shadow-lg) !important;
+}
+
+/* Date display */
+.date-display {
+  background: var(--bg-tertiary) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Student cards */
+.student-card {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+.student-item {
+  background: var(--bg-hover) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Attendance lists */
+.attendance-list,
+.attendance-history {
+  background: var(--bg-secondary) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+.attendance-list h4,
+.attendance-history h4 {
+  color: var(--text-primary) !important;
+}
+
+.history-item {
+  background: var(--bg-hover) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Buttons */
+.btn {
+  background: var(--gradient-primary);
+  color: white;
+  border: none;
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-fast);
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.btn-secondary {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+  background: var(--bg-hover);
+  border-color: var(--border-hover);
+}
+
+.btn-success {
+  background: var(--gradient-success);
+}
+
+.btn-accent {
+  background: var(--gradient-accent);
+}
+
+/* Form Inputs */
+.form-group input,
+.form-group select,
+.form-group textarea {
+  background: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-color) !important;
+  transition: all var(--transition-fast);
+}
+
+.form-group input::placeholder {
+  color: var(--text-muted) !important;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: var(--primary-500) !important;
+  background: var(--bg-card) !important;
+  box-shadow: 0 0 0 3px var(--primary-100) !important;
+}
+
+.form-group label {
+  color: var(--text-secondary) !important;
+}
+
+/* Messages */
+.success-message {
+  background: var(--success-bg);
+  color: var(--success);
+  border-left: 4px solid var(--success);
+}
+
+.error-message {
+  background: var(--error-bg);
+  color: var(--error);
+  border-left: 4px solid var(--error);
+}
+
+.warning-message {
+  background: var(--warning-bg);
+  color: var(--warning);
+  border-left: 4px solid var(--warning);
+}
+
+.info-message {
+  background: var(--info-bg);
+  color: var(--info);
+  border-left: 4px solid var(--info);
+}
+
+/* Stats Cards */
+.stat-card {
+  background: var(--gradient-primary);
+  color: white;
+  box-shadow: var(--shadow-lg);
+}
+
+/* Navigation */
+.navbar {
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+}
+
+.nav-link {
+  color: var(--text-secondary);
+  transition: color var(--transition-fast);
+}
+
+.nav-link:hover {
+  color: var(--primary-500);
+}
+
+/* Modals */
+.modal {
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+}
+
+.modal-content {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border-color) !important;
+  box-shadow: var(--shadow-xl) !important;
+  color: var(--text-primary) !important;
+}
+
+.modal-content h2,
+.modal-content h3,
+.modal-content h4 {
+  color: var(--text-primary) !important;
+}
+
+.close {
+  color: var(--text-muted) !important;
+}
+
+.close:hover {
+  color: var(--text-primary) !important;
+  background: var(--bg-hover) !important;
+}
+
+/* Tables */
+table {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+th {
+  background: var(--bg-tertiary) !important;
+  color: var(--text-primary) !important;
+  border-bottom: 2px solid var(--border-color) !important;
+}
+
+td {
+  color: var(--text-secondary) !important;
+  border-bottom: 1px solid var(--border-color) !important;
+}
+
+tr:hover {
+  background: var(--bg-hover) !important;
+}
+
+/* Video elements */
+video {
+  background: #000 !important;
+  border: 2px solid var(--border-color) !important;
+}
+
+/* Camera container */
+.camera-container {
+  background: var(--bg-card) !important;
+}
+
+/* All text elements */
+h1, h2, h3, h4, h5, h6, p, span, div {
+  color: inherit;
+}
+
+/* Stat cards - keep gradient but adjust for visibility */
+.stat-card {
+  background: var(--gradient-primary) !important;
+  color: white !important;
+}
+
+.stat-number,
+.stat-label {
+  color: white !important;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-tertiary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary-500);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-600);
+}
+
+/* ============================================
+   THEME TOGGLE BUTTON
+   ============================================ */
+
+.theme-toggle {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-full);
+  padding: 12px;
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.theme-toggle:hover {
+  transform: scale(1.05);
+  box-shadow: var(--shadow-lg);
+}
+
+.theme-toggle-icon {
+  width: 24px;
+  height: 24px;
+  transition: transform var(--transition-normal);
+  color: var(--text-primary);
+}
+
+.theme-toggle:hover .theme-toggle-icon {
+  transform: rotate(180deg);
+}
+
+/* Hide sun icon in light mode, moon icon in dark mode */
+[data-theme="light"] .theme-toggle .moon-icon {
+  display: none;
+}
+
+[data-theme="dark"] .theme-toggle .sun-icon {
+  display: none;
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.fade-in {
+  animation: fadeIn var(--transition-normal);
+}
+
+.slide-in {
+  animation: slideIn var(--transition-normal);
+}
+
+.pulse {
+  animation: pulse 2s infinite;
+}
+
+/* ============================================
+   RESPONSIVE ADJUSTMENTS
+   ============================================ */
+
+@media (max-width: 768px) {
+  .theme-toggle {
+    top: 10px;
+    right: 10px;
+    padding: 10px;
+  }
+  
+  .theme-toggle-icon {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+
+@media print {
+  .theme-toggle {
+    display: none;
+  }
+  
+  body {
+    background: white;
+    color: black;
+  }
+  
+  .card {
+    border: 1px solid #ccc;
+    box-shadow: none;
+  }
+}
