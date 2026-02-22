@@ -903,13 +903,16 @@
           <button class="btn" id="repairDataBtn" onclick="repairAttendanceData()">🔧 Repair Data</button>
           <button class="btn" id="statsBtn" onclick="showAttendanceStatistics()">📈 Statistics</button>
           <button class="btn" id="debugBtn" onclick="debugAttendanceData()">🐛 Debug</button>
-          <button class="btn" id="fixDatesBtn" onclick="fixDateFormats()">📅 Fix Dates</button>
+          <button class="btn" id="fixDatesBtn" onclick="fixDateFormats()" title="Date format fix is not required with current schema">📅 Date Schema</button>
           <button class="btn" id="downloadListBtn" onclick="downloadAttendanceList()">📋 Download List</button>
-          <button class="btn" id="downloadCSVBtn" onclick="downloadAttendanceListPDF()">📄 Download CSV</button>
+          <button class="btn" id="downloadCSVBtn" onclick="downloadAttendanceList()">📄 Download CSV</button>
           <button class="btn" id="forceReloadBtn" onclick="forceReloadAttendanceData()">🔄 Force Reload</button>
           <button class="btn" id="testAttendanceBtn" onclick="testAttendanceSystem()">🧪 Test Attendance</button>
           <button class="btn" id="clearDataBtn" onclick="clearAllAttendanceData()">🗑️ Clear Data</button>
         </div>
+
+        <!-- Dashboard Action Messages -->
+        <div id="dashboardActionMessage" style="margin-top: 15px; text-align: center;"></div>
 
         <div id="attendanceDetails" class="hidden">
           <h3>Today's Attendance Details</h3>

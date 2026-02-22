@@ -1,6 +1,11 @@
-from fastapi import Header, HTTPException
+import logging
 from typing import Optional
+
+from fastapi import Header, HTTPException
+
 from database_service import get_supabase_client
+
+logger = logging.getLogger("AttendX.Auth")
 
 async def get_current_user(authorization: Optional[str] = Header(None)):
     """
@@ -11,7 +16,10 @@ async def get_current_user(authorization: Optional[str] = Header(None)):
         raise HTTPException(status_code=401, detail="Missing Authorization header")
 
     try:
-        token = authorization.split(" ")[1]
+        if not authorization.lower().startswith("bearer "):
+            raise HTTPException(status_code=401, detail="Invalid Authorization header format")
+
+        token = authorization.split(" ", 1)[1]
         client = get_supabase_client()
         user = client.auth.get_user(token)
         
@@ -19,10 +27,9 @@ async def get_current_user(authorization: Optional[str] = Header(None)):
             raise HTTPException(status_code=401, detail="Invalid token")
             
         return user.user
-    except IndexError:
-        raise HTTPException(status_code=401, detail="Invalid Authorization header format")
     except Exception as e:
-        raise HTTPException(status_code=401, detail=f"Auth error: {str(e)}")
+        logger.warning("Authentication failed: %s", e)
+        raise HTTPException(status_code=401, detail="Authentication failed")
 
 async def require_auth(authorization: Optional[str] = Header(None)):
     """

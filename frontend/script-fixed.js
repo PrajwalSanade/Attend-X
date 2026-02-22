@@ -9,7 +9,13 @@ import {
 } from './cameraModule.js';
 import { isStudentAuthEnabled } from './authControl.js';
 
-const API_BASES = ['http://127.0.0.1:5000', 'http://localhost:5000'];
+const API_PORT = import.meta.env.VITE_API_PORT || '5000';
+const configuredApiBase = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/+$/, '');
+const API_BASES = Array.from(new Set(
+  configuredApiBase
+    ? [configuredApiBase]
+    : [`http://localhost:${API_PORT}`, `http://127.0.0.1:${API_PORT}`]
+));
 const REQUEST_TIMEOUT_MS = 5000;
 
 
@@ -41,7 +47,7 @@ function setCurrentDate() {
 
 async function preflightBackendHealth() {
   try {
-    const result = await apiRequest('/health', { method: 'GET' }, { silent: true });
+    const result = await apiRequest('/api/v1/health', { method: 'GET' }, { silent: true });
     if (result?.ok) {
       console.log(`[Attend-X] backend healthy on ${lastKnownApiBase}`);
       return;
@@ -94,7 +100,52 @@ async function apiRequest(path, options = {}, behavior = {}) {
     }
   }
 
-  throw new Error(`Unable to reach backend (${path}). Start python backend on port 5000. Last error: ${lastError?.message || 'Unknown'}`);
+  throw new Error(`Unable to reach backend (${path}). Start python backend on http://localhost:${API_PORT}. Last error: ${lastError?.message || 'Unknown'}`);
+}
+
+async function apiBinaryRequest(path, options = {}, behavior = {}) {
+  const { silent = false } = behavior;
+  let lastError = null;
+
+  for (const base of API_BASES) {
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
+      const response = await fetch(`${base}${path}`, {
+        ...options,
+        headers: {
+          ...(await getAuthHeaders()),
+          ...(options.headers || {})
+        },
+        signal: controller.signal
+      });
+      clearTimeout(timeout);
+
+      if (!response.ok) {
+        let message = `HTTP ${response.status}`;
+        const contentType = response.headers.get('content-type') || '';
+        if (contentType.includes('application/json')) {
+          const payload = await response.json().catch(() => ({}));
+          message = payload?.detail || payload?.message || payload?.error || message;
+        } else {
+          const text = await response.text().catch(() => '');
+          if (text) message = text;
+        }
+        throw new Error(message);
+      }
+
+      lastKnownApiBase = base;
+      return await response.blob();
+    } catch (error) {
+      lastError = error;
+      if (!silent) {
+        console.warn(`[Attend-X] Binary API request failed on ${base}${path}:`, error.message);
+      }
+    }
+  }
+
+  throw new Error(`Unable to reach backend (${path}). Start python backend on http://localhost:${API_PORT}. Last error: ${lastError?.message || 'Unknown'}`);
 }
 
 function setupCameraHandlers() {
@@ -245,7 +296,7 @@ async function handleAddStudent() {
     if (insertError) throw new Error(insertError.message);
 
     try {
-      const faceResult = await apiRequest('/register_face', {
+      const faceResult = await apiRequest('/api/v1/register_face', {
         method: 'POST',
         headers: await getAuthHeaders(),
         body: JSON.stringify({
@@ -335,7 +386,7 @@ async function handleDeleteStudent(studentId, rollNumber) {
   if (!confirm(`Delete student ${rollNumber}? This will also remove face data and attendance history.`)) return;
 
   try {
-    const backendResult = await apiRequest('/delete_student_data', {
+    const backendResult = await apiRequest('/api/v1/delete_student_data', {
       method: 'POST',
       body: JSON.stringify({ student_id: studentId })
     });
@@ -531,7 +582,7 @@ async function captureAndVerifyAttendance() {
     attendanceCameraReady = false;
 
     // Call backend to verify face AND mark attendance securely
-    const verifyResult = await apiRequest('/mark_attendance', {
+    const verifyResult = await apiRequest('/api/v1/mark_attendance', {
       method: 'POST',
       body: JSON.stringify({
         student_roll: activeUser.roll_number,
@@ -623,15 +674,51 @@ function escapeHtml(input) {
 }
 
 function showMessage(message, type, elementId) {
-  const messageDiv = document.getElementById(elementId);
-  if (!messageDiv) return;
+  let messageDiv = document.getElementById(elementId);
+
+  // FALLBACK: If target element is missing OR hidden (like inside a closed modal),
+  // OR if it's the dashboard and we want visibility, redirect to dashboardActionMessage
+  if (!messageDiv || messageDiv.offsetParent === null) {
+    const dashboardMsg = document.getElementById('dashboardActionMessage');
+    if (dashboardMsg) {
+      messageDiv = dashboardMsg;
+    } else {
+      // FINAL FALLBACK: Create a toast if nothing else is available
+      createToast(message, type);
+      return;
+    }
+  }
+
   const className = type === 'error' ? 'error-message' : 'success-message';
   messageDiv.innerHTML = `<div class="${className}">${escapeHtml(message)}</div>`;
+
+  // Auto-clear after 5 seconds
   setTimeout(() => {
-    if (messageDiv.innerHTML.includes(message)) {
+    if (messageDiv.innerHTML.includes(escapeHtml(message))) {
       messageDiv.innerHTML = '';
     }
   }, 5000);
+}
+
+/**
+ * Create a floating toast message for critical feedback
+ */
+function createToast(message, type) {
+  const toast = document.createElement('div');
+  toast.className = type === 'error' ? 'error-message' : 'success-message';
+  toast.style.cssText = `
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 10000;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    min-width: 250px;
+    max-width: 400px;
+    pointer-events: auto;
+  `;
+  toast.innerHTML = escapeHtml(message);
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 5000);
 }
 
 async function refreshDashboardData() {
@@ -639,40 +726,68 @@ async function refreshDashboardData() {
   showMessage('Dashboard refreshed', 'success', 'addStudentMessage');
 }
 
-function exportAttendanceData() {
-  showMessage('Export helper not configured in this build.', 'error', 'addStudentMessage');
+async function exportAttendanceData() {
+  // Show modal to choose format
+  const format = confirm('Export as PDF? (Cancel for CSV)') ? 'pdf' : 'csv';
+  
+  if (format === 'csv') {
+    await downloadAttendanceList();
+  } else {
+    await downloadAttendanceListPDF();
+  }
 }
-function repairAttendanceData() {
-  showMessage('Repair helper not configured in this build.', 'error', 'addStudentMessage');
+
+async function repairAttendanceData() {
+  if (!confirm('This will check and repair attendance data inconsistencies. Continue?')) return;
+  
+  try {
+    showMessage('Repair in progress...', 'success', 'addStudentMessage');
+    const result = await apiRequest('/api/v1/repair', { method: 'POST' });
+    const removed = Number(result?.duplicates_removed || 0);
+    showMessage(`Repair completed. Removed ${removed} duplicate record(s).`, 'success', 'addStudentMessage');
+    
+    await updateDashboard();
+  } catch (error) {
+    console.error('[Attend-X] Repair failed:', error);
+    showMessage(`Repair failed: ${error.message}`, 'error', 'addStudentMessage');
+  }
 }
-function showAttendanceStatistics() {
-  showMessage('Statistics view not configured in this build.', 'error', 'addStudentMessage');
+
+async function showAttendanceStatistics() {
+  try {
+    showMessage('Calculating statistics...', 'success', 'addStudentMessage');
+    const result = await apiRequest('/api/v1/statistics', { method: 'GET' });
+    const mostRegular = result?.most_regular_student;
+    const stats = [
+      'Attendance Statistics',
+      '---------------------',
+      `Total Students: ${result?.total_students ?? 0}`,
+      `Total Days Tracked: ${result?.total_days ?? 0}`,
+      `Total Attendance Records: ${result?.total_attendance_records ?? 0}`,
+      `Average Confidence: ${result?.average_confidence ?? 0}%`,
+      `Most Regular: ${mostRegular ? `${mostRegular.name} (${mostRegular.days_present} days)` : 'N/A'}`,
+      `Overall Attendance Rate: ${result?.overall_attendance_rate ?? 0}%`
+    ].join('\n');
+
+    alert(stats);
+    showMessage('Statistics calculated successfully', 'success', 'addStudentMessage');
+
+  } catch (error) {
+    console.error('[Attend-X] Statistics failed:', error);
+    showMessage(`Statistics failed: ${error.message}`, 'error', 'addStudentMessage');
+  }
 }
 function debugAttendanceData() {
   updateDashboard();
   showMessage(`Debug: backend=${lastKnownApiBase}`, 'success', 'addStudentMessage');
 }
+
 function fixDateFormats() {
-  showMessage('Date format fix is not required with current schema.', 'success', 'addStudentMessage');
+  showMessage('Date format fix is not required with current schema.', 'success', 'dashboardActionMessage');
 }
 async function downloadAttendanceList() {
   try {
-    // We use fetch directly instead of apiRequest because we need the blob response
-    const response = await fetch(`${lastKnownApiBase}/export_attendance`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(await getAuthHeaders())
-      },
-      body: JSON.stringify({ format: 'csv' })
-    });
-
-    if (!response.ok) {
-      const err = await response.json().catch(() => ({}));
-      throw new Error(err.message || `HTTP ${response.status}`);
-    }
-
-    const blob = await response.blob();
+    const blob = await apiBinaryRequest('/api/v1/export/csv', { method: 'GET' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -689,21 +804,7 @@ async function downloadAttendanceList() {
 }
 async function downloadAttendanceListPDF() {
   try {
-    const response = await fetch(`${lastKnownApiBase}/export_attendance`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(await getAuthHeaders())
-      },
-      body: JSON.stringify({ format: 'pdf' })
-    });
-
-    if (!response.ok) {
-      const err = await response.json().catch(() => ({}));
-      throw new Error(err.message || `HTTP ${response.status}`);
-    }
-
-    const blob = await response.blob();
+    const blob = await apiBinaryRequest('/api/v1/export/pdf', { method: 'GET' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -723,7 +824,7 @@ function forceReloadAttendanceData() {
 }
 function testAttendanceSystem() {
   preflightBackendHealth();
-  showMessage('Attendance health check triggered. See console logs.', 'success', 'addStudentMessage');
+  showMessage('Attendance health check triggered. See console logs.', 'success', 'dashboardActionMessage');
 }
 async function clearAllAttendanceData() {
   if (!confirm('Delete ALL attendance records?')) return;
@@ -760,3 +861,4 @@ async function getAuthHeaders() {
   }
   return {};
 }
+
