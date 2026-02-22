@@ -32,20 +32,26 @@ CREATE TABLE IF NOT EXISTS face_encodings (
 
 -- Update attendance table
 ALTER TABLE attendance 
-ADD COLUMN IF NOT EXISTS admin_id UUID REFERENCES admins(id) ON DELETE CASCADE;
+ADD COLUMN IF NOT EXISTS admin_id UUID REFERENCES admins(id) ON DELETE CASCADE,
+ADD COLUMN IF NOT EXISTS confidence FLOAT DEFAULT 0.0,
+ADD COLUMN IF NOT EXISTS verified BOOLEAN DEFAULT true,
+ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'present';
 
 -- RLS Policies
 
 -- Admin can see only their own data
+DROP POLICY IF EXISTS "Admins can view their own students" ON students;
 CREATE POLICY "Admins can view their own students" ON students
     FOR ALL
     USING (admin_id IN (SELECT id FROM admins WHERE user_id = auth.uid()));
 
+DROP POLICY IF EXISTS "Admins can view their own attendance" ON attendance;
 CREATE POLICY "Admins can view their own attendance" ON attendance
     FOR ALL
     USING (admin_id IN (SELECT id FROM admins WHERE user_id = auth.uid()));
 
 -- Students can view their own data (optional, for student dashboard)
+DROP POLICY IF EXISTS "Students can view their own record" ON students;
 CREATE POLICY "Students can view their own record" ON students
     FOR SELECT
     USING (id::text = current_setting('request.jwt.claim.sub', true) OR roll_number = current_setting('app.current_roll', true));

@@ -14,9 +14,17 @@ def mark_student_attendance(student_id: str, confidence: float):
         if res.data:
             return False, "Attendance already recorded for today."
             
-        # Insert new record
+        # 2. Fetch admin_id for this student to ensure RLS compliance
+        student_res = client.table("students").select("admin_id").eq("id", student_id).execute()
+        if not student_res.data:
+            return False, "Student not found in database."
+        
+        admin_id = student_res.data[0].get('admin_id')
+            
+        # 3. Insert new record
         data = {
             "student_id": student_id,
+            "admin_id": admin_id,
             "date": today,
             "status": "present",
             "verified": True,

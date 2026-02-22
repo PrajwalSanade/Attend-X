@@ -6,7 +6,8 @@
 // ============================================
 
 import { supabase } from './supabaseClient.js';
-import { isStudentAuthEnabled } from './authControl.js';
+import { isStudentAuthEnabled, updateStudentAuthStatus } from './authControl.js';
+import { initAuthToggle, refreshToggleState } from './authToggleHandler.js';
 
 const USER_STORAGE_KEY = 'attend_x_user';
 const LEGACY_USER_STORAGE_KEY = 'attendr_user';
@@ -50,6 +51,9 @@ function setupEventListeners() {
   // Logout buttons
   document.getElementById('logoutAdmin').addEventListener('click', handleLogout);
   document.getElementById('logoutStudent').addEventListener('click', handleLogout);
+  
+  // Note: Auth toggle is now handled by authToggleHandler.js
+  // It will be initialized when admin dashboard is shown
   
   // Enter key support
   document.getElementById('adminEmail').addEventListener('keypress', (e) => {
@@ -506,12 +510,17 @@ document.addEventListener('DOMContentLoaded', () => {
 /**
  * Show Admin Dashboard
  */
-function showAdminDashboard() {
+async function showAdminDashboard() {
   document.getElementById('loginSection').style.display = 'none';
   document.getElementById('adminDashboard').style.display = 'block';
   document.getElementById('studentDashboard').style.display = 'none';
   
   console.log('✅ Admin dashboard shown for:', currentUser.name);
+  
+  // Initialize auth toggle (dedicated handler)
+  setTimeout(async () => {
+    await initAuthToggle();
+  }, 100); // Small delay to ensure DOM is ready
   
   // Trigger dashboard data load (if function exists in script.js)
   if (typeof updateDashboard === 'function') {

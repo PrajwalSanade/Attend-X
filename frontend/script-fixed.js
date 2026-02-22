@@ -236,7 +236,7 @@ async function handleAddStudent() {
         roll_number: rollNumber,
         photo_url: currentPhotoBase64,
         face_registered: true,
-        admin_id: currentUser?.user_id,
+        admin_id: currentUser?.id,
         created_at: new Date().toISOString()
       }])
       .select()
@@ -655,11 +655,68 @@ function debugAttendanceData() {
 function fixDateFormats() {
   showMessage('Date format fix is not required with current schema.', 'success', 'addStudentMessage');
 }
-function downloadAttendanceList() {
-  showMessage('Download list helper not configured in this build.', 'error', 'addStudentMessage');
+async function downloadAttendanceList() {
+  try {
+    // We use fetch directly instead of apiRequest because we need the blob response
+    const response = await fetch(`${lastKnownApiBase}/export_attendance`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(await getAuthHeaders())
+      },
+      body: JSON.stringify({ format: 'csv' })
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.message || `HTTP ${response.status}`);
+    }
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `attendance_${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+    showMessage('CSV Export started', 'success', 'addStudentMessage');
+  } catch (error) {
+    console.error('[Attend-X] CSV export failed:', error);
+    showMessage(`CSV Export failed: ${error.message}`, 'error', 'addStudentMessage');
+  }
 }
-function downloadAttendanceListPDF() {
-  showMessage('CSV export helper not configured in this build.', 'error', 'addStudentMessage');
+async function downloadAttendanceListPDF() {
+  try {
+    const response = await fetch(`${lastKnownApiBase}/export_attendance`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(await getAuthHeaders())
+      },
+      body: JSON.stringify({ format: 'pdf' })
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.message || `HTTP ${response.status}`);
+    }
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `attendance_${new Date().toISOString().split('T')[0]}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+    showMessage('PDF Export started', 'success', 'addStudentMessage');
+  } catch (error) {
+    console.error('[Attend-X] PDF export failed:', error);
+    showMessage(`PDF Export failed: ${error.message}`, 'error', 'addStudentMessage');
+  }
 }
 function forceReloadAttendanceData() {
   refreshDashboardData();

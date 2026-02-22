@@ -1,0 +1,6 @@
+@echo off
+echo Installing dependencies...
+call npm install
+echo.
+echo Starting AttendX Frontend Development Server...
+call npm run dev

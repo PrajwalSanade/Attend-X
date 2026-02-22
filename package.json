@@ -1,0 +1,17 @@
+{
+  "name": "attendx",
+  "version": "1.0.0",
+  "description": "Face Recognition Attendance System",
+  "scripts": {
+    "dev": "npm run dev --prefix frontend",
+    "build": "npm run build --prefix frontend",
+    "install:frontend": "cd frontend && npm install",
+    "install:backend": "cd backend && pip install -r requirements.txt",
+    "install:all": "npm run install:frontend && npm run install:backend",
+    "backend": "cd backend && python start.py",
+    "frontend": "cd frontend && npm run dev"
+  },
+  "keywords": ["face-recognition", "attendance", "fastapi", "vite"],
+  "author": "",
+  "license": "MIT"
+}

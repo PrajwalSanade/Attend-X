@@ -1,0 +1,3 @@
+@echo off
+echo Starting AttendX Backend with Uvicorn...
+python start.py
