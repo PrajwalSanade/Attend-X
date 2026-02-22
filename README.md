@@ -1,6 +1,161 @@
-# Attend-X Face Attendance System
+# Attend-X - Face Recognition Attendance System
 
-A production-ready Face Attendance System with Multi-Admin Data Isolation, Face Recognition (0.55 threshold), and secure attendance logic.
+A production-ready face attendance system with multi-admin data isolation, face recognition (72% confidence threshold), and secure attendance management.
+
+![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-green.svg)
+![Node](https://img.shields.io/badge/Node-16+-green.svg)
+![License](https://img.shields.io/badge/License-MIT-yellow.svg)
+
+## ✨ Features
+
+- 👤 **Multi-Admin Isolation** - Each admin manages their own students
+- 🎯 **Face Recognition** - 72% confidence threshold for accurate verification
+- 🔒 **Secure Authentication** - JWT-based admin auth, face-based student auth
+- 📊 **Real-time Dashboard** - Live attendance tracking and statistics
+- 📱 **Responsive Design** - Works on desktop and mobile
+- 🌓 **Dark/Light Theme** - User preference support
+- 📥 **Export Data** - CSV and PDF export functionality
+- 🔄 **Auto-reload** - Hot reload for development
+
+## 🚀 Quick Start
+
+### Prerequisites
+- Python 3.8+
+- Node.js 16+
+- Supabase account (free tier)
+- Webcam
+
+### Installation
+
+```bash
+# Clone repository
+git clone <your-repo-url>
+cd attend-x
+
+# Setup database (see docs/SETUP.md)
+# Run backend/FINAL_DATABASE_SETUP.sql in Supabase
+
+# Backend setup
+cd backend
+python -m venv venv
+source venv/bin/activate  # or venv\Scripts\activate on Windows
+pip install -r requirements.txt
+cp .env.example .env  # Edit with your Supabase credentials
+
+# Frontend setup
+cd ../frontend
+npm install
+
+# Run application
+cd ..
+./start-dev.sh  # or start-dev.bat on Windows
+```
+
+### Access
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:5000
+- API Docs: http://localhost:5000/docs
+
+## 📖 Documentation
+
+- [Quick Start Guide](QUICK_START.md) - Get started in 5 minutes
+- [Complete Setup](docs/SETUP.md) - Detailed setup instructions
+- [Troubleshooting](docs/TROUBLESHOOTING.md) - Common issues and solutions
+- [API Documentation](http://localhost:5000/docs) - Interactive API docs (when running)
+
+## 🛠️ Technology Stack
+
+### Backend
+- **FastAPI** - Modern async Python web framework
+- **Uvicorn** - Lightning-fast ASGI server
+- **face_recognition** - Face detection and recognition
+- **Supabase** - Database and authentication
+- **OpenCV** - Image processing
+
+### Frontend
+- **Vite** - Next-generation frontend tooling
+- **face-api.js** - Browser-based face detection
+- **Vanilla JavaScript** - No framework overhead
+- **Supabase Client** - Real-time database access
+
+## 📁 Project Structure
+
+```
+attend-x/
+├── backend/              # FastAPI backend
+│   ├── app.py           # Main application
+│   ├── *_service.py     # Service modules
+│   ├── requirements.txt # Python dependencies
+│   └── *.sql            # Database scripts
+├── frontend/             # Vite frontend
+│   ├── *.html           # Pages
+│   ├── *.js             # Scripts
+│   ├── package.json     # Node dependencies
+│   └── models/          # Face-api.js models
+├── docs/                 # Documentation
+├── README.md            # This file
+└── QUICK_START.md       # Quick start guide
+```
+
+## 🔧 Development
+
+```bash
+# Backend (with auto-reload)
+cd backend
+python start.py
+
+# Frontend (with HMR)
+cd frontend
+npm run dev
+
+# Run tests
+cd backend
+python test_auth_toggle.py
+```
+
+## 🚦 Production Deployment
+
+### Backend
+```bash
+cd backend
+python start_production.py
+# Or with Gunicorn
+gunicorn app:app --workers 4 --worker-class uvicorn.workers.UvicornWorker
+```
+
+### Frontend
+```bash
+cd frontend
+npm run build
+# Deploy dist/ folder to Netlify, Vercel, or any static hosting
+```
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📝 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 🙏 Acknowledgments
+
+- [face_recognition](https://github.com/ageitgey/face_recognition) - Face recognition library
+- [face-api.js](https://github.com/justadudewhohacks/face-api.js) - Browser face detection
+- [FastAPI](https://fastapi.tiangolo.com/) - Modern Python web framework
+- [Supabase](https://supabase.com/) - Open source Firebase alternative
+
+## 📧 Support
+
+For issues and questions:
+- Check [Troubleshooting Guide](docs/TROUBLESHOOTING.md)
+- Open an issue on GitHub
+- Review [Setup Documentation](docs/SETUP.md)
+
+---
+
+**Made with ❤️ for efficient attendance management**
 
 ## 🚀 Quick Start
 

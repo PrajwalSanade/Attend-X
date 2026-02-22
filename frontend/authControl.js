@@ -85,7 +85,6 @@ export async function updateStudentAuthStatus(enabled, adminId = null) {
     console.log('🔧 Updating student auth status to:', enabled ? 'ENABLED' : 'DISABLED');
     
     const updateData = {
-      id: 1,
       student_auth_enabled: enabled,
       updated_at: new Date().toISOString()
     };
@@ -94,14 +93,20 @@ export async function updateStudentAuthStatus(enabled, adminId = null) {
       updateData.updated_by = adminId;
     }
     
+    // Use UPDATE instead of UPSERT to avoid RLS issues
     const { data, error } = await supabase
       .from('system_settings')
-      .upsert(updateData)
+      .update(updateData)
+      .eq('id', 1)
       .select();
     
     if (error) {
       console.error('❌ Error updating auth status:', error);
       throw error;
+    }
+    
+    if (!data || data.length === 0) {
+      throw new Error('No rows updated. System settings row might not exist.');
     }
     
     // Clear cache to force refresh
