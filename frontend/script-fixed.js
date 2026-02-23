@@ -16,7 +16,8 @@ const API_BASES = Array.from(new Set(
     ? [configuredApiBase]
     : [`http://localhost:${API_PORT}`, `http://127.0.0.1:${API_PORT}`]
 ));
-const REQUEST_TIMEOUT_MS = 5000;
+const DEFAULT_REQUEST_TIMEOUT_MS = 5000;
+const FACE_PROCESSING_TIMEOUT_MS = 30000;
 
 
 let currentPhotoBase64 = null;
@@ -59,13 +60,13 @@ async function preflightBackendHealth() {
 }
 
 async function apiRequest(path, options = {}, behavior = {}) {
-  const { silent = false } = behavior;
+  const { silent = false, timeoutMs = DEFAULT_REQUEST_TIMEOUT_MS } = behavior;
   let lastError = null;
 
   for (const base of API_BASES) {
     try {
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+      const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
       const response = await fetch(`${base}${path}`, {
         ...options,
@@ -93,9 +94,13 @@ async function apiRequest(path, options = {}, behavior = {}) {
       lastKnownApiBase = base;
       return payload;
     } catch (error) {
-      lastError = error;
+      if (error?.name === 'AbortError') {
+        lastError = new Error(`Request timed out after ${Math.round(timeoutMs / 1000)}s`);
+      } else {
+        lastError = error;
+      }
       if (!silent) {
-        console.warn(`[Attend-X] API request failed on ${base}${path}:`, error.message);
+        console.warn(`[Attend-X] API request failed on ${base}${path}:`, lastError.message);
       }
     }
   }
@@ -104,13 +109,13 @@ async function apiRequest(path, options = {}, behavior = {}) {
 }
 
 async function apiBinaryRequest(path, options = {}, behavior = {}) {
-  const { silent = false } = behavior;
+  const { silent = false, timeoutMs = DEFAULT_REQUEST_TIMEOUT_MS } = behavior;
   let lastError = null;
 
   for (const base of API_BASES) {
     try {
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+      const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
       const response = await fetch(`${base}${path}`, {
         ...options,
@@ -304,7 +309,7 @@ async function handleAddStudent() {
           student_roll: rollNumber,
           image: currentPhotoBase64
         })
-      });
+      }, { timeoutMs: FACE_PROCESSING_TIMEOUT_MS });
 
       if (!faceResult?.success) {
         throw new Error(faceResult?.message || 'Face registration failed');
@@ -589,7 +594,7 @@ async function captureAndVerifyAttendance() {
         student_id: activeUser.id,
         image: faceImage
       })
-    });
+    }, { timeoutMs: FACE_PROCESSING_TIMEOUT_MS });
 
     if (!verifyResult?.success) {
       throw new Error(verifyResult?.message || 'Attendance failed');
